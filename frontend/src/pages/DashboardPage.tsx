@@ -16,7 +16,7 @@ import {
   Trash2,
   User,
   Users,
-  X
+  X,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../services/api";
@@ -28,18 +28,33 @@ type Item = {
 };
 
 const navGroups = [
-  { title: "Dashboard", items: [{ label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" }] },
+  {
+    title: "Dashboard",
+    items: [{ label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" }],
+  },
   {
     title: "Sales",
     items: [
       { label: "New Invoice", icon: ReceiptText, path: "/transactions/new" },
       { label: "Invoices", icon: FileText, path: "/transactions" },
-      { label: "Search Records", icon: Search, path: "/search" }
-    ]
+      { label: "Search Records", icon: Search, path: "/search" },
+    ],
   },
-  { title: "Inventory", items: [{ label: "Products", icon: Boxes, path: "/products" }] },
-  { title: "Management", items: [{ label: "Employees", icon: Users, path: "/employees" }, { label: "Reports", icon: BarChart3, path: "/reports" }] },
-  { title: "Settings", items: [{ label: "Settings", icon: Settings, path: "/settings" }] }
+  {
+    title: "Inventory",
+    items: [{ label: "Products", icon: Boxes, path: "/products" }],
+  },
+  {
+    title: "Management",
+    items: [
+      { label: "Employees", icon: Users, path: "/employees" },
+      { label: "Reports", icon: BarChart3, path: "/reports" },
+    ],
+  },
+  {
+    title: "Settings",
+    items: [{ label: "Settings", icon: Settings, path: "/settings" }],
+  },
 ];
 
 export function DashboardPage() {
@@ -57,9 +72,14 @@ export function DashboardPage() {
   const [saveMessage, setSaveMessage] = useState("");
   const [saveError, setSaveError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [items, setItems] = useState<Item[]>([{ product: "", qty: 1, price: 0 }]);
+  const [items, setItems] = useState<Item[]>([
+    { product: "", qty: 1, price: 0 },
+  ]);
 
-  const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.qty * item.price, 0), [items]);
+  const subtotal = useMemo(
+    () => items.reduce((sum, item) => sum + item.qty * item.price, 0),
+    [items],
+  );
   const discountedSubtotal = Math.max(subtotal - discount, 0);
   const taxAmount = discountedSubtotal * (taxRate / 100);
   const total = discountedSubtotal + taxAmount;
@@ -71,16 +91,19 @@ export function DashboardPage() {
   const today = new Intl.DateTimeFormat("en-GB", {
     day: "2-digit",
     month: "short",
-    year: "numeric"
+    year: "numeric",
   }).format(new Date());
 
   function updateItem(index: number, field: keyof Item, value: string) {
     setItems((current) =>
       current.map((item, itemIndex) =>
         itemIndex === index
-          ? { ...item, [field]: field === "product" ? value : Number(value) || 0 }
-          : item
-      )
+          ? {
+              ...item,
+              [field]: field === "product" ? value : Number(value) || 0,
+            }
+          : item,
+      ),
     );
   }
 
@@ -93,7 +116,7 @@ export function DashboardPage() {
       .map((item) => ({
         itemName: item.product.trim(),
         quantity: item.qty,
-        unitPrice: item.price
+        unitPrice: item.price,
       }));
 
     if (!customerName.trim()) {
@@ -109,7 +132,9 @@ export function DashboardPage() {
     setIsSaving(true);
 
     try {
-      const response = await api.post<{ transaction: { transactionNumber: string } }>("/transactions", {
+      const response = await api.post<{
+        transaction: { transactionNumber: string };
+      }>("/transactions", {
         customerName,
         customerPhone: phone,
         customerAddress: address,
@@ -117,7 +142,7 @@ export function DashboardPage() {
         taxRate,
         isPaid,
         paymentMethod,
-        items: validItems
+        items: validItems,
       });
 
       setSaveMessage(`Saved ${response.data.transaction.transactionNumber}`);
@@ -132,23 +157,38 @@ export function DashboardPage() {
   return (
     <main className="flex min-h-screen bg-[#f5f7f6] text-slate-950">
       <Sidebar currentPath={location.pathname} />
-      <MobileSidebar currentPath={location.pathname} isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <MobileSidebar
+        currentPath={location.pathname}
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+      />
 
       <section className="flex min-h-screen min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-3 shadow-sm sm:px-5 lg:px-7">
           <div className="flex min-w-0 items-center gap-3 sm:gap-7">
-            <button onClick={() => setIsMenuOpen(true)} className="rounded-md p-2 hover:bg-slate-100 lg:hidden" aria-label="Open menu">
+            <button
+              onClick={() => setIsMenuOpen(true)}
+              className="rounded-md p-2 hover:bg-slate-100 lg:hidden"
+              aria-label="Open menu"
+            >
               <Menu className="h-6 w-6" />
             </button>
-            <h2 className="truncate text-lg font-bold text-emerald-800 sm:text-xl">Create Invoice</h2>
+            <h2 className="truncate text-lg font-bold text-emerald-800 sm:text-xl">
+              Create Invoice
+            </h2>
           </div>
-          <button onClick={logout} className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-slate-100">
+          <button
+            onClick={logout}
+            className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-slate-100"
+          >
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-200">
               <User className="h-6 w-6" />
             </div>
             <div className="hidden text-left sm:block">
               <p className="font-semibold">{user?.name ?? "User"}</p>
-              <p className="text-xs capitalize text-slate-500">{user?.role.toLowerCase()}</p>
+              <p className="text-xs capitalize text-slate-500">
+                {user?.role.toLowerCase()}
+              </p>
             </div>
             <ChevronDown className="h-4 w-4" />
           </button>
@@ -157,10 +197,21 @@ export function DashboardPage() {
         <div className={`grid flex-1 gap-4 p-3 sm:p-4 ${workspaceGridClass}`}>
           <section className="flex flex-col rounded-md border border-slate-200 bg-white shadow-sm">
             <div className="shrink-0 border-b border-slate-200 p-4">
-              <h3 className="font-bold text-emerald-800">Customer Information</h3>
-              <Field label="Customer Name" value={customerName} onChange={setCustomerName} required />
+              <h3 className="font-bold text-emerald-800">
+                Customer Information
+              </h3>
+              <Field
+                label="Customer Name"
+                value={customerName}
+                onChange={setCustomerName}
+                required
+              />
               <Field label="Phone" value={phone} onChange={setPhone} />
-              <Field label="Address (Optional)" value={address} onChange={setAddress} />
+              <Field
+                label="Address (Optional)"
+                value={address}
+                onChange={setAddress}
+              />
             </div>
 
             <div className="flex-1 border-b border-slate-200 p-4">
@@ -190,17 +241,51 @@ export function DashboardPage() {
                       <tr key={index} className="border-b border-slate-100">
                         <td className="px-2 py-2">{index + 1}</td>
                         <td className="px-2 py-2">
-                          <input className="w-full bg-transparent outline-none" value={item.product} onChange={(event) => updateItem(index, "product", event.target.value)} />
+                          <input
+                            className="w-full bg-transparent outline-none"
+                            value={item.product}
+                            onChange={(event) =>
+                              updateItem(index, "product", event.target.value)
+                            }
+                          />
                         </td>
                         <td className="px-2 py-2 text-center">
-                          <input className="mx-auto h-8 w-16 rounded border border-transparent bg-transparent text-center outline-none focus:border-slate-300" value={item.qty} onChange={(event) => updateItem(index, "qty", event.target.value)} type="number" min="1" />
+                          <input
+                            className="mx-auto h-8 w-16 rounded border border-transparent bg-transparent text-center outline-none focus:border-slate-300"
+                            value={item.qty}
+                            onChange={(event) =>
+                              updateItem(index, "qty", event.target.value)
+                            }
+                            type="number"
+                            min="1"
+                          />
                         </td>
                         <td className="px-2 py-2 text-center">
-                          <input className="mx-auto h-8 w-20 rounded border border-transparent bg-transparent text-center outline-none focus:border-slate-300" value={item.price === 0 ? "" : item.price} onChange={(event) => updateItem(index, "price", event.target.value)} type="number" min="0" />
+                          <input
+                            className="mx-auto h-8 w-20 rounded border border-transparent bg-transparent text-center outline-none focus:border-slate-300"
+                            value={item.price === 0 ? "" : item.price}
+                            onChange={(event) =>
+                              updateItem(index, "price", event.target.value)
+                            }
+                            type="number"
+                            min="0"
+                          />
                         </td>
-                        <td className="px-2 py-2 text-right">${(item.qty * item.price).toFixed(2)}</td>
                         <td className="px-2 py-2 text-right">
-                          <button onClick={() => setItems(items.filter((_, itemIndex) => itemIndex !== index))} className="text-red-600" aria-label="Remove item">
+                          ${(item.qty * item.price).toFixed(2)}
+                        </td>
+                        <td className="px-2 py-2 text-right">
+                          <button
+                            onClick={() =>
+                              setItems(
+                                items.filter(
+                                  (_, itemIndex) => itemIndex !== index,
+                                ),
+                              )
+                            }
+                            className="text-red-600"
+                            aria-label="Remove item"
+                          >
                             <Trash2 className="h-4 w-4" />
                           </button>
                         </td>
@@ -209,7 +294,12 @@ export function DashboardPage() {
                   </tbody>
                 </table>
               </div>
-              <button onClick={() => setItems([...items, { product: "", qty: 1, price: 0 }])} className="mt-4 rounded-md border border-emerald-700 px-4 py-2 text-sm font-semibold text-emerald-800">
+              <button
+                onClick={() =>
+                  setItems([...items, { product: "", qty: 1, price: 0 }])
+                }
+                className="mt-4 rounded-md border border-emerald-700 px-4 py-2 text-sm font-semibold text-emerald-800"
+              >
                 + Add Item
               </button>
             </div>
@@ -217,49 +307,102 @@ export function DashboardPage() {
             <div className="shrink-0 grid gap-5 p-4 md:grid-cols-2">
               <div className="space-y-3">
                 <MoneyRow label="Subtotal" value={`$${subtotal.toFixed(2)}`} />
-                <NumberField label="Discount" value={discount} onChange={setDiscount} />
-                <NumberField label="Tax (%)" value={taxRate} onChange={setTaxRate} />
+                <NumberField
+                  label="Discount"
+                  value={discount}
+                  onChange={setDiscount}
+                />
+                <NumberField
+                  label="Tax (%)"
+                  value={taxRate}
+                  onChange={setTaxRate}
+                />
                 <MoneyRow label="Total" value={`$${total.toFixed(2)}`} strong />
               </div>
               <div className="space-y-3 border-t border-slate-200 pt-4 md:border-l md:border-t-0 md:pl-5 md:pt-0">
                 <label className="grid grid-cols-[96px_minmax(120px,1fr)] items-center gap-3 text-sm">
                   <span>Paid Amount</span>
-                  <select className="h-10 rounded-md border border-slate-300 px-3" value={isPaid ? "YES" : "NO"} onChange={(event) => setIsPaid(event.target.value === "YES")}>
+                  <select
+                    className="h-10 rounded-md border border-slate-300 px-3"
+                    value={isPaid ? "YES" : "NO"}
+                    onChange={(event) =>
+                      setIsPaid(event.target.value === "YES")
+                    }
+                  >
                     <option>NO</option>
                     <option>YES</option>
                   </select>
                 </label>
                 <label className="grid grid-cols-[96px_minmax(120px,1fr)] items-center gap-3 text-sm">
                   <span>Payment Method</span>
-                  <select className="h-10 rounded-md border border-slate-300 px-3" value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)}>
+                  <select
+                    className="h-10 rounded-md border border-slate-300 px-3"
+                    value={paymentMethod}
+                    onChange={(event) => setPaymentMethod(event.target.value)}
+                  >
                     <option>Cash</option>
                     <option>Card</option>
                     <option>Mobile Money</option>
                     <option>Bank Transfer</option>
                   </select>
                 </label>
-                <MoneyRow label="Remaining Balance" value={`$${remaining.toFixed(2)}`} danger={remaining > 0} />
+                <MoneyRow
+                  label="Remaining Balance"
+                  value={`$${remaining.toFixed(2)}`}
+                  danger={remaining > 0}
+                />
               </div>
             </div>
           </section>
 
           {showPreview ? (
-            <InvoicePreview customerName={customerName} phone={phone} address={address} items={items} subtotal={subtotal} discount={discount} taxRate={taxRate} taxAmount={taxAmount} total={total} paidAmount={paidAmount} paymentMethod={paymentMethod} remaining={remaining} date={today} />
+            <InvoicePreview
+              customerName={customerName}
+              phone={phone}
+              address={address}
+              items={items}
+              subtotal={subtotal}
+              discount={discount}
+              taxRate={taxRate}
+              taxAmount={taxAmount}
+              total={total}
+              paidAmount={paidAmount}
+              paymentMethod={paymentMethod}
+              remaining={remaining}
+              date={today}
+            />
           ) : null}
 
-          <aside className={`space-y-4 ${showPreview ? "lg:col-span-2 xl:col-span-1" : ""}`}>
+          <aside
+            className={`space-y-4 ${showPreview ? "lg:col-span-2 xl:col-span-1" : ""}`}
+          >
             <div className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
               <h3 className="mb-5 text-sm font-bold uppercase">Actions</h3>
-              <button onClick={saveInvoice} disabled={isSaving} className="mb-4 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-emerald-700 font-semibold text-white disabled:bg-slate-400">
+              <button
+                onClick={saveInvoice}
+                disabled={isSaving}
+                className="mb-4 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-emerald-700 font-semibold text-white disabled:bg-slate-400"
+              >
                 <Save className="h-4 w-4" />
                 {isSaving ? "Saving..." : "Save Invoice"}
               </button>
-              <button onClick={() => setShowPreview((current) => !current)} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-emerald-700 font-semibold text-white">
+              <button
+                onClick={() => setShowPreview((current) => !current)}
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-emerald-700 font-semibold text-white"
+              >
                 <ReceiptText className="h-4 w-4" />
                 {showPreview ? "Hide Preview" : "Show Preview"}
               </button>
-              {saveMessage ? <p className="mt-3 text-sm font-semibold text-emerald-700">{saveMessage}</p> : null}
-              {saveError ? <p className="mt-3 text-sm font-semibold text-red-600">{saveError}</p> : null}
+              {saveMessage ? (
+                <p className="mt-3 text-sm font-semibold text-emerald-700">
+                  {saveMessage}
+                </p>
+              ) : null}
+              {saveError ? (
+                <p className="mt-3 text-sm font-semibold text-red-600">
+                  {saveError}
+                </p>
+              ) : null}
               <button
                 onClick={() => {
                   setShowPreview(true);
@@ -286,9 +429,14 @@ export function DashboardPage() {
               </button>
             </div>
             <div className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
-              <h3 className="mb-5 text-sm font-bold uppercase">Preview Settings</h3>
+              <h3 className="mb-5 text-sm font-bold uppercase">
+                Preview Settings
+              </h3>
               {["A4", "Portrait", "Default"].map((value) => (
-                <select key={value} className="mb-4 h-11 w-full rounded-md border border-slate-300 px-3">
+                <select
+                  key={value}
+                  className="mb-4 h-11 w-full rounded-md border border-slate-300 px-3"
+                >
                   <option>{value}</option>
                 </select>
               ))}
@@ -300,34 +448,84 @@ export function DashboardPage() {
   );
 }
 
-function Field({ label, value, onChange, required }: { label: string; value: string; onChange: (value: string) => void; required?: boolean }) {
+function Field({
+  label,
+  value,
+  onChange,
+  required,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;
+}) {
   return (
     <label className="mt-4 block text-sm">
       {label} {required ? <span className="text-red-600">*</span> : null}
-      <input className="mt-2 h-10 w-full rounded-md border border-slate-300 px-3 outline-none focus:border-emerald-700" value={value} onChange={(event) => onChange(event.target.value)} />
+      <input
+        className="mt-2 h-10 w-full rounded-md border border-slate-300 px-3 outline-none focus:border-emerald-700"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
     </label>
   );
 }
 
-function Summary({ label, value, strong, danger }: { label: string; value: string; strong?: boolean; danger?: boolean }) {
+function Summary({
+  label,
+  value,
+  strong,
+  danger,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+  danger?: boolean;
+}) {
   return (
     <div className="flex items-center justify-between text-sm">
       <span className={strong ? "font-bold" : ""}>{label}</span>
-      <span className={`${strong ? "font-bold text-emerald-800" : ""} ${danger ? "font-bold text-red-600" : ""}`}>{value}</span>
+      <span
+        className={`${strong ? "font-bold text-emerald-800" : ""} ${danger ? "font-bold text-red-600" : ""}`}
+      >
+        {value}
+      </span>
     </div>
   );
 }
 
-function MoneyRow({ label, value, strong, danger }: { label: string; value: string; strong?: boolean; danger?: boolean }) {
+function MoneyRow({
+  label,
+  value,
+  strong,
+  danger,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+  danger?: boolean;
+}) {
   return (
     <div className="grid grid-cols-[96px_minmax(120px,1fr)] items-center gap-3 text-sm">
       <span className={strong ? "font-bold" : ""}>{label}</span>
-      <span className={`text-right ${strong ? "font-bold text-emerald-800" : ""} ${danger ? "font-bold text-red-600" : ""}`}>{value}</span>
+      <span
+        className={`text-right ${strong ? "font-bold text-emerald-800" : ""} ${danger ? "font-bold text-red-600" : ""}`}
+      >
+        {value}
+      </span>
     </div>
   );
 }
 
-function NumberField({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
+function NumberField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+}) {
   return (
     <label className="grid grid-cols-[96px_minmax(120px,1fr)] items-center gap-3 text-sm">
       <span>{label}</span>
@@ -355,7 +553,7 @@ function InvoicePreview({
   paidAmount,
   paymentMethod,
   remaining,
-  date
+  date,
 }: {
   customerName: string;
   phone: string;
@@ -374,9 +572,13 @@ function InvoicePreview({
   return (
     <section className="print-area overflow-hidden rounded-sm bg-white px-5 py-6 shadow-xl sm:px-8 lg:px-10 lg:py-8">
       <div className="flex items-start justify-between">
-        <h2 className="text-3xl font-extrabold tracking-normal text-emerald-800 sm:text-5xl">INVOICE</h2>
+        <h2 className="text-3xl font-extrabold tracking-normal text-emerald-800 sm:text-5xl">
+          INVOICE
+        </h2>
         <div className="text-right">
-          <div className="mb-2 text-2xl font-bold text-emerald-700 sm:text-4xl">|||||</div>
+          <div className="mb-2 text-2xl font-bold text-emerald-700 sm:text-4xl">
+            |||||
+          </div>
           <p className="font-bold text-emerald-800">BIZMANAGER</p>
           <p className="text-xs">BUSINESS SYSTEM</p>
         </div>
@@ -385,7 +587,10 @@ function InvoicePreview({
         <div className="space-y-5">
           <PreviewLine label="Invoice No." value="INV-000123" />
           <PreviewLine label="Date" value={date.toUpperCase()} />
-          <PreviewLine label="Payment Method" value={paymentMethod.toUpperCase()} />
+          <PreviewLine
+            label="Payment Method"
+            value={paymentMethod.toUpperCase()}
+          />
         </div>
         <div className="border-t border-slate-300 pt-5 sm:border-l sm:border-t-0 sm:border-slate-900 sm:pl-10 sm:pt-0">
           <PreviewLine label="Customer" value={customerName} />
@@ -394,37 +599,46 @@ function InvoicePreview({
         </div>
       </div>
       <div className="mt-8 overflow-x-auto border-t border-slate-900">
-      <table className="w-full min-w-[430px] text-sm">
-        <thead className="text-emerald-800">
-          <tr>
-            <th className="py-4 text-left">Items</th>
-            <th className="py-4 text-right">Qty.</th>
-            <th className="py-4 text-right">Price</th>
-            <th className="py-4 text-right">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item, index) => (
-            <tr key={index} className="border-t border-slate-200">
-              <td className="py-3">{item.product || "Item"}</td>
-              <td className="py-3 text-right">{item.qty}</td>
-              <td className="py-3 text-right">${item.price.toFixed(2)}</td>
-              <td className="py-3 text-right">${(item.qty * item.price).toFixed(2)}</td>
+        <table className="w-full min-w-[430px] text-sm">
+          <thead className="text-emerald-800">
+            <tr>
+              <th className="py-4 text-left">Items</th>
+              <th className="py-4 text-right">Qty.</th>
+              <th className="py-4 text-right">Price</th>
+              <th className="py-4 text-right">Total</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.map((item, index) => (
+              <tr key={index} className="border-t border-slate-200">
+                <td className="py-3">{item.product || "Item"}</td>
+                <td className="py-3 text-right">{item.qty}</td>
+                <td className="py-3 text-right">${item.price.toFixed(2)}</td>
+                <td className="py-3 text-right">
+                  ${(item.qty * item.price).toFixed(2)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
       <div className="ml-auto mt-10 w-full max-w-72 space-y-3 text-sm">
         <Summary label="SUBTOTAL" value={`$${subtotal.toFixed(2)}`} />
         <Summary label="DISCOUNT" value={`$${discount.toFixed(2)}`} />
-        <Summary label={`TAX (${taxRate}%)`} value={`$${taxAmount.toFixed(2)}`} />
+        <Summary
+          label={`TAX (${taxRate}%)`}
+          value={`$${taxAmount.toFixed(2)}`}
+        />
         <div className="border-t border-emerald-700 pt-4">
           <Summary label="TOTAL" value={`$${total.toFixed(2)}`} strong />
         </div>
         <Summary label="PAID" value={`$${paidAmount.toFixed(2)}`} />
         <div className="border-t border-emerald-700 pt-4">
-          <Summary label="REMAINING BALANCE" value={`$${remaining.toFixed(2)}`} danger={remaining > 0} />
+          <Summary
+            label="REMAINING BALANCE"
+            value={`$${remaining.toFixed(2)}`}
+            danger={remaining > 0}
+          />
         </div>
       </div>
       <div className="mt-10">
@@ -453,22 +667,37 @@ export function SimplePage({ title }: { title: string }) {
   return (
     <main className="flex min-h-screen bg-[#f5f7f6] text-slate-950">
       <Sidebar currentPath={location.pathname} />
-      <MobileSidebar currentPath={location.pathname} isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      <MobileSidebar
+        currentPath={location.pathname}
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+      />
       <section className="flex min-h-screen min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-3 shadow-sm sm:px-5 lg:px-7">
           <div className="flex min-w-0 items-center gap-3 sm:gap-7">
-            <button onClick={() => setIsMenuOpen(true)} className="rounded-md p-2 hover:bg-slate-100 lg:hidden" aria-label="Open menu">
+            <button
+              onClick={() => setIsMenuOpen(true)}
+              className="rounded-md p-2 hover:bg-slate-100 lg:hidden"
+              aria-label="Open menu"
+            >
               <Menu className="h-6 w-6" />
             </button>
-            <h2 className="truncate text-lg font-bold text-emerald-800 sm:text-xl">{title}</h2>
+            <h2 className="truncate text-lg font-bold text-emerald-800 sm:text-xl">
+              {title}
+            </h2>
           </div>
-          <button onClick={logout} className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-slate-100">
+          <button
+            onClick={logout}
+            className="flex items-center gap-3 rounded-md px-2 py-1 hover:bg-slate-100"
+          >
             <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-200">
               <User className="h-6 w-6" />
             </div>
             <div className="hidden text-left sm:block">
               <p className="font-semibold">{user?.name ?? "User"}</p>
-              <p className="text-xs capitalize text-slate-500">{user?.role.toLowerCase()}</p>
+              <p className="text-xs capitalize text-slate-500">
+                {user?.role.toLowerCase()}
+              </p>
             </div>
             <ChevronDown className="h-4 w-4" />
           </button>
@@ -476,7 +705,9 @@ export function SimplePage({ title }: { title: string }) {
         <section className="p-3 sm:p-4">
           <div className="rounded-md border border-slate-200 bg-white p-8 shadow-sm">
             <h1 className="text-2xl font-bold text-emerald-800">{title}</h1>
-            <p className="mt-3 text-slate-600">This page is now accessible from the sidebar.</p>
+            <p className="mt-3 text-slate-600">
+              This page is now accessible from the sidebar.
+            </p>
           </div>
         </section>
       </section>
@@ -492,16 +723,32 @@ function Sidebar({ currentPath }: { currentPath: string }) {
   );
 }
 
-function MobileSidebar({ currentPath, isOpen, onClose }: { currentPath: string; isOpen: boolean; onClose: () => void }) {
+function MobileSidebar({
+  currentPath,
+  isOpen,
+  onClose,
+}: {
+  currentPath: string;
+  isOpen: boolean;
+  onClose: () => void;
+}) {
   if (!isOpen) {
     return null;
   }
 
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
-      <button className="absolute inset-0 bg-black/45" onClick={onClose} aria-label="Close menu" />
+      <button
+        className="absolute inset-0 bg-black/45"
+        onClick={onClose}
+        aria-label="Close menu"
+      />
       <aside className="relative h-full w-[min(86vw,320px)] overflow-y-auto bg-[#0d1c1e] px-5 py-6 text-white shadow-2xl">
-        <button onClick={onClose} className="absolute right-4 top-4 rounded-md p-2 hover:bg-white/10" aria-label="Close menu">
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 rounded-md p-2 hover:bg-white/10"
+          aria-label="Close menu"
+        >
           <X className="h-5 w-5" />
         </button>
         <SidebarContent currentPath={currentPath} onNavigate={onClose} />
@@ -510,7 +757,13 @@ function MobileSidebar({ currentPath, isOpen, onClose }: { currentPath: string; 
   );
 }
 
-function SidebarContent({ currentPath, onNavigate }: { currentPath: string; onNavigate?: () => void }) {
+function SidebarContent({
+  currentPath,
+  onNavigate,
+}: {
+  currentPath: string;
+  onNavigate?: () => void;
+}) {
   return (
     <>
       <div className="flex items-center gap-3">
@@ -525,7 +778,9 @@ function SidebarContent({ currentPath, onNavigate }: { currentPath: string; onNa
       <nav className="mt-8 space-y-6">
         {navGroups.map((group) => (
           <div key={group.title}>
-            <p className="mb-3 text-xs uppercase tracking-wide text-slate-500">{group.title}</p>
+            <p className="mb-3 text-xs uppercase tracking-wide text-slate-500">
+              {group.title}
+            </p>
             <div className="space-y-1">
               {group.items.map((item) => (
                 <Link
@@ -533,7 +788,9 @@ function SidebarContent({ currentPath, onNavigate }: { currentPath: string; onNa
                   to={item.path}
                   onClick={onNavigate}
                   className={`flex h-11 w-full items-center gap-3 rounded-md px-3 text-left text-sm ${
-                    currentPath === item.path ? "bg-emerald-700 text-white" : "text-slate-200 hover:bg-white/10"
+                    currentPath === item.path
+                      ? "bg-emerald-700 text-white"
+                      : "text-slate-200 hover:bg-white/10"
                   }`}
                 >
                   <item.icon className="h-5 w-5" />
